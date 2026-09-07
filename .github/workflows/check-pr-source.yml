@@ -1,0 +1,22 @@
+name: Check PR source
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened, edited]
+permissions:
+  contents: read
+jobs:
+  check-source:
+    name: main-from-dev
+    runs-on: ubuntu-latest
+    steps:
+      - name: Require dev from the same repository
+        env:
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          BASE_REPO: ${{ github.repository }}
+          HEAD_BRANCH: ${{ github.head_ref }}
+        run: |
+          if [[ "$HEAD_REPO" != "$BASE_REPO" || "$HEAD_BRANCH" != "dev" ]]; then
+            echo "::error::main only accepts pull requests from dev in the same repository"
+            exit 1
+          fi
